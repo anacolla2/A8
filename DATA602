@@ -1,0 +1,202 @@
+---
+title: "DATA602- Assignment 8"
+author: "Ana Collado"
+format: pdf
+editor: visual
+jupyter: python3
+---
+
+# Introduction
+
+In this section, please describe the dataset you are using. Include a link
+to the source of this data. You should also provide some explanation on why
+you choose this dataset.
+
+```{python}
+
+import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+top1000= pd.read_csv("int_top100.tsv", sep= "\t")
+top1000.info()
+```
+
+> The dataset I chose for this assignment is called [Top 1000 International
+> Grossing Movies posted by Kalilur Rahman on
+> Kaggle](https://www.kaggle.com/datasets/kalilurrahman/top-box-office-revenue-data-english-movies/code)
+> in 2022 originally, although as of today 12/18/24 it is marked a updated.
+> There are 1000 observations (or in this case rankings) ranging from 1937
+> to 2022. I chose it because movies are great and the amount of money they
+> can generate is wild.
+
+# Data Exploration & Wrangling
+
+```{python}
+#Examining desc stats by year
+by_year= top1000.groupby("Year")
+by_year.describe()
+```
+
+> Grouping by year has too much information. I'll create a decade column to
+> group the years by decade.
+
+```{python}
+#grouping the years by decade for easier viewing
+top1000["Decade"] = top1000.Year // 10 * 10
+top1000.head()
+```
+
+```{python}
+by_decade= top1000.groupby("Decade")
+by_decade.describe()
+```
+
+> I notice 1990-2010 have the highest rank counts. But to be fair, the 2020
+> decade is not over and the dataset only contains movies up to 2022.
+> Apparently no movies made top rank in the 50's and only two movies in he
+> 60's— with an average rank of 795.
+
+```{python}
+#taking a look at the df
+top1000
+```
+
+```{python}
+#Checking for nulls!
+top1000.isnull().sum()
+```
+
+```{python}
+#Pulling summary for new Decade column
+top1000["Decade"].describe()
+```
+
+```{python}
+#Looking at other columns
+worldwide_desc= top1000["Worldwide Lifetime Gross"].describe()
+domestic_desc= top1000["Domestic Lifetime Gross"].describe()
+worldwide_desc
+domestic_desc
+```
+
+---------------------------------------------------------------------------
+
+# Visualizations
+
+The main purpose of this assignment is to practice creating various
+visualizations using the matplotlib and seaborn library.
+
+##### Plot 1: mathplotlib 
+
+```{python}
+#showing density of films by year and how much they earned
+#adding this wipe because of the amount of times I edit and rerun the codes -_-.
+
+plt.scatter(top1000['Year'], top1000['Foreign Lifetime Gross'], alpha=0.4)
+plt.title("Top 1000 Movies: Foreign Release Lifetime Gross")
+plt.xlabel("Year")
+plt.ylabel("Foreign Lifetime Gross (in billions")
+plt.show()
+```
+
+##### Plot 1: seaborn
+
+```{python}
+#showing density of films by year and how much they earned
+
+sns.scatterplot(x= 'Year', y='Foreign Lifetime Gross', data= top1000, alpha= 0.4)
+plt.title("Top 1000 Movies: Foreign Release Lifetime Gross")
+plt.xlabel("Year")
+plt.ylabel("Foreign Lifetime Gross (in billions)")
+plt.show()
+```
+
+##### Plot 2: mathplotlib
+
+```{python}
+#---------taking the top 5-----+rotation and alignment-----
+top5= top1000.iloc[0:5,: ]
+top5
+
+plt.bar(top5['Title'], top5['Foreign Lifetime Gross'], color="pink")
+plt.title('Top 5 Films Foreign Lifetime Gross')
+plt.ylabel('Foreign Lifetime Gross (in billions)')
+plt.xticks(rotation=40, ha="right")
+plt.tight_layout()
+plt.show()
+```
+
+##### Plot 2: seaborn
+
+```{python}
+#Top 5 foreign films
+
+sns.barplot(data=top5, x='Title', y='Foreign Lifetime Gross', color="pink")
+plt.title('Top 5 Films Foreign Lifetime Gross')
+plt.ylabel('Foreign Lifetime Gross (in billions)')
+plt.xticks(ha= "right", rotation= 40)
+plt.tight_layout()
+plt.show()
+
+```
+
+##### Plot 3: mathplotlib
+
+```{python}
+
+#--------Top 5 foreign AND domestic---------
+#setting up columns of interest
+
+title= top5['Title']
+domestic=top5['Domestic Lifetime Gross'] 
+foreign= top5['Foreign Lifetime Gross'] 
+
+#adding labels for legend
+plt.bar(title, domestic, color="#4285F4", alpha=0.7, label= "Domestic Lifetime Gross")
+plt.bar(title, foreign, color="#0F9D58", alpha= 0.1, label= "Foreign Lifetime Gross")
+plt.title("Top 5 Films Foreign and Domestic Films' Lifetime Gross")
+plt.ylabel('Film Gross (in billions)')
+plt.xticks(ha= "right", rotation= 40)
+plt.legend(loc= 'upper right', fontsize= 12, bbox_to_anchor=(-.1, .1))
+plt.tight_layout()
+plt.show()
+
+
+```
+
+##### Plot3: seaborn
+
+```{python}
+#--------Top 5 foreign AND domestic---------
+
+sns.barplot(data=top5, x='Title', y='Domestic Lifetime Gross', color="#4285F4", alpha=0.7, label="Domestic Lifetime Gross")
+sns.barplot(data=top5, x='Title', y='Foreign Lifetime Gross', color="#0F9D58", alpha=0.1, label="Foreign Lifetime Gross")
+
+# Add title, labels, and legend
+plt.title("Top 5 Films: Foreign and Domestic Lifetime Gross")
+plt.ylabel('Film Gross (in billions)')
+plt.xticks(rotation=40, ha="right")
+plt.legend(loc='upper right', fontsize=8)
+plt.tight_layout()
+plt.show()
+```
+
+```{python}
+#plotting foreign and domestic gross----moving legend around--- 
+plt.bar(title, domestic, alpha= 0.3,color= "blue", label= "Domestic Lifetime Gross")
+plt.bar(title, foreign, alpha= 0.3,color= "pink", label= "Foreign Lifetime Gross")
+plt.title('Top 5 Films Foreign Lifetime Gross')
+plt.ylabel('Film Gross (in billions)')
+plt.xticks(ha= "right", rotation= 40)
+plt.legend(loc= 'upper right', fontsize= 9, bbox_to_anchor=(-1.7, -1.7))
+plt.tight_layout()
+plt.show()
+
+```
+
+## Conclusion
+
+Well seaborn is consistantly shorter than the code for mathplotlib
+visualiations. I feel I might prefer seaborn for how similar it is to
+ggplot in syntax.
